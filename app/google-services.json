@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "568839806653",
+    "firebase_url": "https://javacrypto-9130f.firebaseio.com",
+    "project_id": "javacrypto-9130f",
+    "storage_bucket": "javacrypto-9130f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568839806653:android:a762facccec917767761d4",
+        "android_client_info": {
+          "package_name": "com.tengri.javacrypto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "568839806653-8dn8i4k4ffu3hd6krrb02q81t78tbveq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0QFMPfuLHoRfdOEhvNfnrBcLGKbxWkRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "568839806653-8dn8i4k4ffu3hd6krrb02q81t78tbveq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
