@@ -22,41 +22,49 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="5dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/gray"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="50dp"
         android:orientation="horizontal"
         android:id="@+id/listView2"
         android:layout_weight="2"
         android:weightSum="10"
         android:minHeight="48dp"
+        android:gravity="center"
 
         >
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+
+
+        <EditText
+            android:id="@+id/input"
             android:layout_weight="9"
-            android:padding="5dp">
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/circular_background"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:hint="input text"
+            android:ellipsize="end"
+            />
 
-            <EditText
-                android:id="@+id/input"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/circular_background"
-                android:layout_gravity="center"
-                android:padding="2dp"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <ImageButton
+            android:layout_weight="1"
             android:id="@+id/send_btn"
-            android:layout_weight="2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:src="@drawable/icon_send"
-            android:layout_marginStart="5dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="5dp"
-            app:fabCustomSize="36dp"
+            android:background="@null"
             />
     </LinearLayout>
 </LinearLayout>

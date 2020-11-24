@@ -42,12 +42,16 @@ import com.google.firebase.database.Query;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 
@@ -56,12 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private static int SIGN_IN_REQUEST_CODE = 1;
     private FirebaseListAdapter<Message> adapter;
     LinearLayout activity_main;
-    FloatingActionButton send;
+    ImageButton send;
     EditText input;
     ListView listMessages;
-
-    private static SecretKeySpec secretKey;
-    private static byte[] key;
 
     public static String TAG = "MainActivity";
 
@@ -72,23 +73,23 @@ public class MainActivity extends AppCompatActivity {
 
         activity_main = (LinearLayout) findViewById(R.id.activity_main);
         listMessages = (ListView) findViewById(R.id.listView);
-        send = (FloatingActionButton) findViewById(R.id.send_btn);
+        send = (ImageButton) findViewById(R.id.send_btn);
         input = (EditText) findViewById(R.id.input);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+//                DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+//                ref.removeValue();
                 String message = input.getText().toString();
                 if (message.equals("")){
                     Toast.makeText(getApplicationContext(), "Input empty", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     String cipher = encryptAlgorithm(message, "qwerty");
-                    FirebaseDatabase.getInstance().getReference().push().setValue(new Message(cipher,
+                    String des_cipher = DES_encrypt(cipher).replaceAll("\\n", " ");
+                    FirebaseDatabase.getInstance().getReference().push().setValue(new Message(des_cipher,
                             FirebaseAuth.getInstance().getCurrentUser().getEmail()));
-                    String aes_cipher = aes_encrypt(message, "ssshhhhhhhhhhh!!!!");
-                    String aes_decipher = aes_decrypt(aes_cipher, "ssshhhhhhhhhhh!!!!");
-                    Toast.makeText(getApplicationContext(), "AES encrypt: "+aes_cipher+"\ndecrypt: "+aes_decipher, Toast.LENGTH_SHORT).show();
                     input.setText("");
                 }
             }
@@ -102,67 +103,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public static void setKey(String myKey)
-    {
-        MessageDigest sha = null;
-        try {
-            key = myKey.getBytes("UTF-8");
-            sha = MessageDigest.getInstance("SHA-1");
-            key = sha.digest(key);
-            key = Arrays.copyOf(key, 16);
-            secretKey = new SecretKeySpec(key, "AES");
-        }
-        catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public static String aes_encrypt(String strToEncrypt, String secret)
-    {
-        try
-        {
-            setKey(secret);
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            String value = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                value = Base64.getEncoder().encodeToString(strToEncrypt.getBytes("UTF-8"));
-            }
-            return value;
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error while encrypting: " + e.toString());
-        }
-        return null;
-    }
-
-    @SuppressLint("NewApi")
-    public static String aes_decrypt(String strToDecrypt, String secret)
-    {
-        try
-        {
-            setKey(secret);
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            String decipher =  new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
-            Log.d(TAG, "decipher: "+decipher);
-            return decipher;
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error while decrypting: " + e.toString());
-        }
-        return null;
-    }
-
-    //Vighiner
+    //Vighiner----------------------------------------------------------------
     private String encryptAlgorithm(String text, String keyphrase) {
 
         keyphrase = keyphrase.toUpperCase();
@@ -217,8 +158,126 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-
+//----------------------------------------------------------------
     private DatabaseReference myRef;
+
+    //DES
+    public static String des_key = "qwertyui";
+
+    public String DES_encrypt(String value) {
+
+
+        String crypted = "";
+
+        try {
+
+            byte[] cleartext = value.getBytes("UTF-8");
+
+            SecretKeySpec key = new SecretKeySpec(des_key.getBytes(), "DES");
+
+            Cipher cipher = Cipher.getInstance("DES/ECB/ZeroBytePadding");
+
+            // Initialize the cipher for decryption
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+
+            crypted = android.util.Base64.encodeToString(cipher.doFinal(cleartext), android.util.Base64.DEFAULT);
+
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+
+            return "Encrypt Error";
+        }
+        catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            return "Encrypt Error";
+        }
+        catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+
+            return "Encrypt Error";
+        }
+        catch (BadPaddingException e) {
+            e.printStackTrace();
+
+            return "Encrypt Error";
+        }
+        catch (InvalidKeyException e) {
+            e.printStackTrace();
+
+            return "Encrypt Error";
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            return "Encrypt Error";
+        }
+
+        return crypted;
+    }
+
+    public String DES_decrypt(String value) {
+
+        String coded;
+        if(value.startsWith("code==")){
+            coded = value.substring(6,value.length()).trim();
+        }else{
+            coded = value.trim();
+        }
+
+        String result = null;
+
+        try {
+            // Decoding base64
+            byte[] bytesDecoded = android.util.Base64.decode(coded.getBytes("UTF-8"), android.util.Base64.DEFAULT);
+
+            SecretKeySpec key = new SecretKeySpec(des_key.getBytes(), "DES");
+
+            Cipher cipher = Cipher.getInstance("DES/ECB/ZeroBytePadding");
+
+            // Initialize the cipher for decryption
+            cipher.init(Cipher.DECRYPT_MODE, key);
+
+            // Decrypt the text
+            byte[] textDecrypted = cipher.doFinal(bytesDecoded);
+
+            result = new String(textDecrypted);
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (BadPaddingException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (InvalidKeyException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "Decrypt Error";
+        }
+
+        return result;
+    }
 
     private void displayChat(){
         myRef = FirebaseDatabase.getInstance().getReference();
@@ -231,12 +290,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void populateView(View v, Message model, int position) {
 
-                TextView textMessage, author, timeMessage, tvCipher;
+                TextView textMessage, author, timeMessage, tvCipher, textCipher1;
                 tvCipher = (TextView) v.findViewById(R.id.tvCipher);
                 textMessage = (TextView)v.findViewById(R.id.tvMessage);
                 author = (TextView)v.findViewById(R.id.tvUser);
                 timeMessage = (TextView)v.findViewById(R.id.tvTime);
-                String decipher = decryptAlgorithm(model.getTextMessage(), "qwerty");
+                textCipher1 = (TextView) v.findViewById(R.id.tvCipher1);
+                String des_decipher = DES_decrypt(model.getTextMessage());
+                textCipher1.setText(des_decipher);
+
+
+                String decipher = decryptAlgorithm(des_decipher, "qwerty");
+
                 tvCipher.setText(decipher);
                 textMessage.setText(model.getTextMessage());
                 author.setText(model.getAutor());
