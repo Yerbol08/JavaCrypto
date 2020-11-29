@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 
 <!-- drawable/location-exit.xml -->
-<vector android:viewportHeight="24" android:viewportWidth="24" android:width="24dp" android:height="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+<vector android:viewportHeight="24"
+    android:viewportWidth="24"
+    android:width="24dp"
+    android:height="24dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <path android:pathData="M22 12L18 8V11H10V13H18V16M20 18A10 10 0 1 1 20 6H17.27A8 8 0 1 0 17.27 18Z" android:fillColor="#000"/>
+    <path android:pathData="M22 12L18 8V11H10V13H18V16M20 18A10 10 0 1 1 20 6H17.27A8 8 0 1 0 17.27 18Z"
+        android:fillColor="#FFF"/>
 
 </vector>

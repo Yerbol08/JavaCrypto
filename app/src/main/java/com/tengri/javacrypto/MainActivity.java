@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -27,7 +28,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.lang.String;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static String TAG = "MainActivity";
 
+    public static String alphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +89,10 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Input empty", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    String cipher = encryptAlgorithm(message, "qwerty");
+                    String cipher = encryptAlgorithm(message);
+
                     String des_cipher = DES_encrypt(cipher).replaceAll("\\n", " ");
+
                     FirebaseDatabase.getInstance().getReference().push().setValue(new Message(des_cipher,
                             FirebaseAuth.getInstance().getCurrentUser().getEmail()));
                     input.setText("");
@@ -98,14 +103,17 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .build(), SIGN_IN_REQUEST_CODE);
-        } else {
+        }
+        else {
             displayChat();
         }
     }
 
-    //Vighiner----------------------------------------------------------------
-    private String encryptAlgorithm(String text, String keyphrase) {
 
+
+    //Vigenere----------------------------------------------------------------
+    private String encryptAlgorithm(String text) {
+        String keyphrase = "qwerty";
         keyphrase = keyphrase.toUpperCase();
         StringBuilder sb = new StringBuilder(100);
 
@@ -114,25 +122,58 @@ public class MainActivity extends AppCompatActivity {
             char upper = text.toUpperCase().charAt(i);
             char orig = text.charAt(i);
 
-            if (Character.isAlphabetic(orig)) {
-                if (Character.isUpperCase(orig)) {
-                    sb.append((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65));
-                    ++j;
-                    j %= keyphrase.length();
+            if (upper < 128){
+                if (Character.isAlphabetic(orig)) {
+                    if (Character.isUpperCase(orig)) {
+                        sb.append((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65));
+                        ++j;
+                        j %= keyphrase.length();
+                    } else {
+                        sb.append(Character.toLowerCase((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65)));
+                        ++j;
+                        j %= keyphrase.length();
+                    }
                 } else {
-                    sb.append(Character.toLowerCase((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65)));
-                    ++j;
-                    j %= keyphrase.length();
+                    sb.append(orig);
                 }
-            } else {
-                sb.append(orig);
             }
+
+            else{
+                keyphrase = "йцукен";
+                keyphrase = keyphrase.toUpperCase();
+
+
+                if (Character.isAlphabetic(orig)) {
+                    if (Character.isUpperCase(orig)) {
+                        int upper_index = alphabet.indexOf(upper);
+                        int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                        int value = (upper_index + key_index ) % 33;
+                        sb.append((char)(alphabet.charAt(value)));
+                        Log.d(TAG, "Text: "+ upper_index + ", Key:" + key_index + ", Value: " +value );
+                        ++j;
+                        j %= keyphrase.length();
+                    } else {
+                        int upper_index = alphabet.indexOf(upper);
+                        int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                        int value = (upper_index + key_index ) % 33;
+                        sb.append(Character.toLowerCase((char)(alphabet.charAt(value))));
+                        Log.d(TAG, "Text: "+ upper_index + ", Key:" + key_index + ", Value: " +value );
+                        ++j;
+                        j %= keyphrase.length();
+                    }
+                } else {
+                    sb.append(orig);
+                }
+            }
+
+
+
         }
         return sb.toString();
     }
 
-    private String decryptAlgorithm(String text, String keyphrase) {
-
+    private String decryptAlgorithm(String text) {
+        String keyphrase = "qwerty";
         keyphrase = keyphrase.toUpperCase();
         StringBuilder sb = new StringBuilder(100);
 
@@ -140,21 +181,50 @@ public class MainActivity extends AppCompatActivity {
 
             char upper = text.toUpperCase().charAt(i);
             char orig = text.charAt(i);
-
-            if (Character.isAlphabetic(orig)) {
-                if (Character.isUpperCase(orig)) {
-                    sb.append((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65));
-                    ++j;
-                    j %= keyphrase.length();
+            if (upper<192){
+                if (Character.isAlphabetic(orig)) {
+                    if (Character.isUpperCase(orig)) {
+                        sb.append((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65));
+                        ++j;
+                        j %= keyphrase.length();
+                    } else {
+                        sb.append(Character.toLowerCase((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65)));
+                        ++j;
+                        j %= keyphrase.length();
+                    }
                 } else {
-                    sb.append(Character.toLowerCase((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65)));
-                    ++j;
-                    j %= keyphrase.length();
+                    sb.append(orig);
                 }
-            } else {
-                sb.append(orig);
             }
-        }
+            else {
+                keyphrase = "йцукен";
+                keyphrase = keyphrase.toUpperCase();
+                    if (Character.isAlphabetic(orig)) {
+                        if (Character.isUpperCase(orig)) {
+                            int upper_index = alphabet.indexOf(upper);
+                            int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                            int value = (upper_index - key_index + 33) % 33;
+                            sb.append((char)(alphabet.charAt(value)));
+                            ++j;
+                            j %= keyphrase.length();
+                        } else {
+                            int upper_index = alphabet.indexOf(upper);
+                            int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                            int value = (upper_index - key_index + 33) % 33;
+                            sb.append(Character.toLowerCase((char)(alphabet.charAt(value))));
+
+                            ++j;
+                            j %= keyphrase.length();
+                        }
+                    } else {
+                        sb.append(orig);
+                    }
+
+            }
+            }
+
+
+
         return sb.toString();
     }
 
@@ -165,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
     public static String des_key = "qwertyui";
 
     public String DES_encrypt(String value) {
-
 
         String crypted = "";
 
@@ -279,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
+    @SuppressLint("ResourceAsColor")
     private void displayChat(){
         myRef = FirebaseDatabase.getInstance().getReference();
         FirebaseListOptions<Message> options = new FirebaseListOptions.Builder<Message>()
@@ -287,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         adapter = new FirebaseListAdapter<Message>(options) {
+            @SuppressLint("ResourceAsColor")
             @Override
             protected void populateView(View v, Message model, int position) {
 
@@ -300,18 +371,21 @@ public class MainActivity extends AppCompatActivity {
                 textCipher1.setText(des_decipher);
 
 
-                String decipher = decryptAlgorithm(des_decipher, "qwerty");
+                String decipher = decryptAlgorithm(des_decipher);
 
                 tvCipher.setText(decipher);
                 textMessage.setText(model.getTextMessage());
                 author.setText(model.getAutor());
                 timeMessage.setText(DateFormat.format("dd.MM.yyyy HH:mm:ss", model.getTimeMessage()));
 
+
+
             }
         };
         adapter.startListening();
 
         listMessages.setAdapter(adapter);
+
     }
 
     @Override
