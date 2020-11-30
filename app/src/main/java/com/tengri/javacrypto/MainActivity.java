@@ -361,6 +361,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void populateView(View v, Message model, int position) {
 
+                RelativeLayout relativeLayout= (RelativeLayout) v.findViewById(R.id.relative);
                 TextView textMessage, author, timeMessage, tvCipher, textCipher1;
                 tvCipher = (TextView) v.findViewById(R.id.tvCipher);
                 textMessage = (TextView)v.findViewById(R.id.tvMessage);
@@ -378,12 +379,15 @@ public class MainActivity extends AppCompatActivity {
                 author.setText(model.getAutor());
                 timeMessage.setText(DateFormat.format("dd.MM.yyyy HH:mm:ss", model.getTimeMessage()));
 
-
-
+                if (position % 2 ==0){
+                    relativeLayout.setBackgroundColor(R.color.colorAccent);
+                }
+                else if (position % 2 ==1){
+                    relativeLayout.setBackgroundColor(R.color.gray);
+                }
             }
         };
         adapter.startListening();
-
         listMessages.setAdapter(adapter);
 
     }
