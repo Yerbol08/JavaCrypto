@@ -1,29 +1,20 @@
 package com.tengri.javacrypto;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.text.method.TextKeyListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,21 +25,14 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -85,10 +69,9 @@ public class MainActivity extends AppCompatActivity {
 //                DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 //                ref.removeValue();
                 String message = input.getText().toString();
-                if (message.equals("")){
+                if (message.equals("")) {
                     Toast.makeText(getApplicationContext(), "Input empty", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     String cipher = encryptAlgorithm(message);
 
                     String des_cipher = DES_encrypt(cipher).replaceAll("\\n", " ");
@@ -103,12 +86,10 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .build(), SIGN_IN_REQUEST_CODE);
-        }
-        else {
+        } else {
             displayChat();
         }
     }
-
 
 
     //Vigenere----------------------------------------------------------------
@@ -122,23 +103,21 @@ public class MainActivity extends AppCompatActivity {
             char upper = text.toUpperCase().charAt(i);
             char orig = text.charAt(i);
 
-            if (upper < 128){
+            if (upper < 128) {
                 if (Character.isAlphabetic(orig)) {
                     if (Character.isUpperCase(orig)) {
-                        sb.append((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65));
+                        sb.append((char) ((upper + keyphrase.charAt(j) - 130) % 26 + 65));
                         ++j;
                         j %= keyphrase.length();
                     } else {
-                        sb.append(Character.toLowerCase((char)((upper + keyphrase.charAt(j) - 130) % 26 + 65)));
+                        sb.append(Character.toLowerCase((char) ((upper + keyphrase.charAt(j) - 130) % 26 + 65)));
                         ++j;
                         j %= keyphrase.length();
                     }
                 } else {
                     sb.append(orig);
                 }
-            }
-
-            else{
+            } else {
                 keyphrase = "йцукен";
                 keyphrase = keyphrase.toUpperCase();
 
@@ -147,17 +126,17 @@ public class MainActivity extends AppCompatActivity {
                     if (Character.isUpperCase(orig)) {
                         int upper_index = alphabet.indexOf(upper);
                         int key_index = alphabet.indexOf(keyphrase.charAt(j));
-                        int value = (upper_index + key_index ) % 33;
-                        sb.append((char)(alphabet.charAt(value)));
-                        Log.d(TAG, "Text: "+ upper_index + ", Key:" + key_index + ", Value: " +value );
+                        int value = (upper_index + key_index) % 33;
+                        sb.append((char) (alphabet.charAt(value)));
+                        Log.d(TAG, "Text: " + upper_index + ", Key:" + key_index + ", Value: " + value);
                         ++j;
                         j %= keyphrase.length();
                     } else {
                         int upper_index = alphabet.indexOf(upper);
                         int key_index = alphabet.indexOf(keyphrase.charAt(j));
-                        int value = (upper_index + key_index ) % 33;
-                        sb.append(Character.toLowerCase((char)(alphabet.charAt(value))));
-                        Log.d(TAG, "Text: "+ upper_index + ", Key:" + key_index + ", Value: " +value );
+                        int value = (upper_index + key_index) % 33;
+                        sb.append(Character.toLowerCase((char) (alphabet.charAt(value))));
+                        Log.d(TAG, "Text: " + upper_index + ", Key:" + key_index + ", Value: " + value);
                         ++j;
                         j %= keyphrase.length();
                     }
@@ -165,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
                     sb.append(orig);
                 }
             }
-
 
 
         }
@@ -181,54 +159,52 @@ public class MainActivity extends AppCompatActivity {
 
             char upper = text.toUpperCase().charAt(i);
             char orig = text.charAt(i);
-            if (upper<192){
+            if (upper < 192) {
                 if (Character.isAlphabetic(orig)) {
                     if (Character.isUpperCase(orig)) {
-                        sb.append((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65));
+                        sb.append((char) ((upper - keyphrase.charAt(j) + 26) % 26 + 65));
                         ++j;
                         j %= keyphrase.length();
                     } else {
-                        sb.append(Character.toLowerCase((char)((upper - keyphrase.charAt(j) + 26) % 26 + 65)));
+                        sb.append(Character.toLowerCase((char) ((upper - keyphrase.charAt(j) + 26) % 26 + 65)));
                         ++j;
                         j %= keyphrase.length();
                     }
                 } else {
                     sb.append(orig);
                 }
-            }
-            else {
+            } else {
                 keyphrase = "йцукен";
                 keyphrase = keyphrase.toUpperCase();
-                    if (Character.isAlphabetic(orig)) {
-                        if (Character.isUpperCase(orig)) {
-                            int upper_index = alphabet.indexOf(upper);
-                            int key_index = alphabet.indexOf(keyphrase.charAt(j));
-                            int value = (upper_index - key_index + 33) % 33;
-                            sb.append((char)(alphabet.charAt(value)));
-                            ++j;
-                            j %= keyphrase.length();
-                        } else {
-                            int upper_index = alphabet.indexOf(upper);
-                            int key_index = alphabet.indexOf(keyphrase.charAt(j));
-                            int value = (upper_index - key_index + 33) % 33;
-                            sb.append(Character.toLowerCase((char)(alphabet.charAt(value))));
-
-                            ++j;
-                            j %= keyphrase.length();
-                        }
+                if (Character.isAlphabetic(orig)) {
+                    if (Character.isUpperCase(orig)) {
+                        int upper_index = alphabet.indexOf(upper);
+                        int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                        int value = (upper_index - key_index + 33) % 33;
+                        sb.append((char) (alphabet.charAt(value)));
+                        ++j;
+                        j %= keyphrase.length();
                     } else {
-                        sb.append(orig);
+                        int upper_index = alphabet.indexOf(upper);
+                        int key_index = alphabet.indexOf(keyphrase.charAt(j));
+                        int value = (upper_index - key_index + 33) % 33;
+                        sb.append(Character.toLowerCase((char) (alphabet.charAt(value))));
+
+                        ++j;
+                        j %= keyphrase.length();
                     }
+                } else {
+                    sb.append(orig);
+                }
 
             }
-            }
-
+        }
 
 
         return sb.toString();
     }
 
-//----------------------------------------------------------------
+    //----------------------------------------------------------------
     private DatabaseReference myRef;
 
     //DES
@@ -256,31 +232,25 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
 
             return "Encrypt Error";
-        }
-        catch (NoSuchPaddingException e) {
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
             return "Encrypt Error";
-        }
-        catch (IllegalBlockSizeException e) {
+        } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
 
             return "Encrypt Error";
-        }
-        catch (BadPaddingException e) {
+        } catch (BadPaddingException e) {
             e.printStackTrace();
 
             return "Encrypt Error";
-        }
-        catch (InvalidKeyException e) {
+        } catch (InvalidKeyException e) {
             e.printStackTrace();
 
             return "Encrypt Error";
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
             return "Encrypt Error";
@@ -292,9 +262,9 @@ public class MainActivity extends AppCompatActivity {
     public String DES_decrypt(String value) {
 
         String coded;
-        if(value.startsWith("code==")){
-            coded = value.substring(6,value.length()).trim();
-        }else{
+        if (value.startsWith("code==")) {
+            coded = value.substring(6, value.length()).trim();
+        } else {
             coded = value.trim();
         }
 
@@ -319,28 +289,22 @@ public class MainActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (NoSuchPaddingException e) {
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (IllegalBlockSizeException e) {
+        } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (BadPaddingException e) {
+        } catch (BadPaddingException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (InvalidKeyException e) {
+        } catch (InvalidKeyException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return "Decrypt Error";
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return "Decrypt Error";
         }
@@ -349,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ResourceAsColor")
-    private void displayChat(){
+    private void displayChat() {
         myRef = FirebaseDatabase.getInstance().getReference();
         FirebaseListOptions<Message> options = new FirebaseListOptions.Builder<Message>()
                 .setQuery(myRef, Message.class)
@@ -361,12 +325,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void populateView(View v, Message model, int position) {
 
-                RelativeLayout relativeLayout= (RelativeLayout) v.findViewById(R.id.relative);
+                RelativeLayout relativeLayout = (RelativeLayout) v.findViewById(R.id.relative);
                 TextView textMessage, author, timeMessage, tvCipher, textCipher1;
                 tvCipher = (TextView) v.findViewById(R.id.tvCipher);
-                textMessage = (TextView)v.findViewById(R.id.tvMessage);
-                author = (TextView)v.findViewById(R.id.tvUser);
-                timeMessage = (TextView)v.findViewById(R.id.tvTime);
+                textMessage = (TextView) v.findViewById(R.id.tvMessage);
+                author = (TextView) v.findViewById(R.id.tvUser);
+                timeMessage = (TextView) v.findViewById(R.id.tvTime);
                 textCipher1 = (TextView) v.findViewById(R.id.tvCipher1);
                 String des_decipher = DES_decrypt(model.getTextMessage());
                 textCipher1.setText(des_decipher);
@@ -379,10 +343,9 @@ public class MainActivity extends AppCompatActivity {
                 author.setText(model.getAutor());
                 timeMessage.setText(DateFormat.format("dd.MM.yyyy HH:mm:ss", model.getTimeMessage()));
 
-                if (position % 2 ==0){
+                if (position % 2 == 0) {
                     relativeLayout.setBackgroundColor(R.color.colorAccent);
-                }
-                else if (position % 2 ==1){
+                } else if (position % 2 == 1) {
                     relativeLayout.setBackgroundColor(R.color.gray);
                 }
             }
@@ -395,10 +358,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SIGN_IN_REQUEST_CODE)
-        {
-            if (resultCode == RESULT_OK)
-            {
+        if (requestCode == SIGN_IN_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
                 Snackbar.make(activity_main, "Вход выполнен", Snackbar.LENGTH_SHORT).show();
                 displayChat();
             } else {
@@ -416,8 +377,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_signout)
-        {
+        if (item.getItemId() == R.id.menu_signout) {
             AuthUI.getInstance().signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -429,17 +389,27 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
+        if (item.getItemId() == R.id.menu_delete) {
+            new MaterialAlertDialogBuilder(MainActivity.this)
+                    .setTitle("Nazar awdarıñız")
+                    .setMessage("Joyğıñız keletinine senimdisiz be?")
+                    .setPositiveButton("Ïä joyu", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                            ref.removeValue();
+                        }
+                    })
+                    .setNegativeButton("Bas tartw", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                                onVisibleBehindCanceled();
+                        }
+                    })
+                    .show();
+
+        }
         return true;
-    }
 
-    @Override
-    protected void onPause () {
-
-        // скрываем клавиатуру, чтобы избежать getTextBeforeCursor при неактивном InputConnection
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService (Context.INPUT_METHOD_SERVICE);
-
-        inputMethodManager.hideSoftInputFromWindow (input.getWindowToken (), 0);
-
-        super.onPause ();
     }
 }
