@@ -391,9 +391,9 @@ public class MainActivity extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.menu_delete) {
             new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("Nazar awdarıñız")
-                    .setMessage("Joyğıñız keletinine senimdisiz be?")
-                    .setPositiveButton("Ïä joyu", new DialogInterface.OnClickListener() {
+                    .setTitle("Nazar awdarınız")
+                    .setMessage("Joygınız keletinine senimdisiz be?")
+                    .setPositiveButton("Ia joyu", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
